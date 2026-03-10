@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>匿語 - 匿名互動樹洞</title>
+    <title>匿語 (Ni-Yu) - 深夜樹洞</title>
     <style>
         :root { 
-            --bg: #f4f7f6; 
-            --primary: #6d8a78; 
-            --secondary: #e9ecef; 
-            --text: #333;
+            --bg: #121212;          /* 背景深黑 */
+            --card-bg: #1e1e1e;     /* 卡片深灰 */
+            --primary: #81b29a;     /* 森林綠 */
+            --secondary: #333333;   /* 按鈕背景 */
+            --text-main: #e0e0e0;   /* 主文字 */
+            --text-sub: #a0a0a0;    /* 次要文字 */
+            --accent: #e07a5f;      /* 按讚紅 */
         }
         body { 
             font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
@@ -19,29 +22,34 @@
             flex-direction: column; 
             align-items: center; 
             padding: 20px; 
-            color: var(--text);
+            color: var(--text-main);
         }
         .container { width: 100%; max-width: 500px; }
         
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--primary); letter-spacing: 2px; margin-bottom: 5px; }
+        .subtitle { color: var(--text-sub); font-size: 0.9em; }
+
         /* 輸入框樣式 */
         .post-box { 
-            background: white; 
+            background: var(--card-bg); 
             padding: 20px; 
             border-radius: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
             margin-bottom: 25px; 
         }
         textarea { 
             width: 100%; 
             height: 90px; 
-            border: 1px solid #ddd; 
+            background: #2a2a2a;
+            border: 1px solid #333;
             border-radius: 10px; 
             padding: 12px; 
             box-sizing: border-box; 
             resize: none; 
             font-size: 16px; 
+            color: white;
             outline: none;
-            transition: border 0.3s;
         }
         textarea:focus { border-color: var(--primary); }
         
@@ -49,103 +57,84 @@
             margin-top: 10px; 
             padding: 12px; 
             background: var(--primary); 
-            color: white; 
+            color: #121212; 
             border: none; 
             border-radius: 10px; 
             cursor: pointer; 
             font-weight: bold; 
             width: 100%;
-            transition: opacity 0.2s;
         }
-        button:active { opacity: 0.8; transform: scale(0.98); }
 
-        /* 貼文清單樣式 */
+        /* 貼文樣式 */
         .post { 
-            background: white; 
+            background: var(--card-bg); 
             padding: 20px; 
             border-radius: 15px; 
             margin-bottom: 20px; 
-            border-left: 5px solid var(--primary); 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            animation: slideUp 0.4s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            animation: fadeIn 0.4s ease;
         }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .post-content { font-size: 17px; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
+        .post-content { font-size: 17px; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; }
         
-        /* 互動按鈕區 */
         .actions { 
             display: flex; 
-            gap: 20px; 
-            border-top: 1px solid #eee; 
+            gap: 15px; 
+            border-top: 1px solid #333; 
             padding-top: 12px; 
         }
         .action-btn { 
-            background: none; 
-            color: #666; 
-            padding: 6px 10px; 
+            background: var(--secondary); 
+            color: var(--text-sub); 
+            padding: 6px 12px; 
             font-size: 14px; 
-            border-radius: 5px; 
+            border-radius: 20px; 
             width: auto; 
             margin: 0; 
             display: flex;
             align-items: center;
             gap: 5px;
+            border: none;
+            cursor: pointer;
         }
-        .action-btn:hover { background: var(--secondary); }
+        .action-btn.active { color: var(--accent); background: #3d2b2b; }
         
         /* 回覆區域 */
         .reply-section { 
             margin-top: 12px; 
-            background: #f9f9f9; 
+            background: #252525; 
             padding: 12px; 
             border-radius: 10px; 
             display: none; 
         }
-        .reply-item { 
-            font-size: 14px; 
-            border-bottom: 1px solid #eee; 
-            padding: 8px 0; 
-            color: #555; 
-        }
+        .reply-item { font-size: 14px; border-bottom: 1px solid #333; padding: 8px 0; color: var(--text-sub); }
         .reply-item:last-child { border-bottom: none; }
         
         .reply-input-group { display: flex; gap: 8px; margin-top: 10px; }
-        .reply-input { 
-            flex: 1; 
-            padding: 8px; 
-            border: 1px solid #ddd; 
-            border-radius: 6px; 
-            font-size: 14px;
-        }
+        .reply-input { flex: 1; padding: 8px; background: #333; border: 1px solid #444; border-radius: 6px; color: white; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <header style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: var(--primary); margin-bottom: 5px;">匿語</h1>
-            <p style="color: #888; margin: 0;">拋開身份，真實地表達自我</p>
+        <header>
+            <h1>匿語 (Ni-Yu)</h1>
+            <p class="subtitle">深夜的樹洞，聽你的秘密</p>
         </header>
 
         <div class="post-box">
-            <textarea id="postInput" placeholder="在這裡寫下你的心聲..."></textarea>
+            <textarea id="postInput" placeholder="在這裡傾訴你的心聲..."></textarea>
             <button id="sendBtn">發布貼文</button>
         </div>
 
-        <div id="postFeed">
-            </div>
+        <div id="postFeed"></div>
     </div>
 
     <script type="module">
-        // 1. 引入 Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, set, onChildAdded, onValue, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // 2. 你的專案配置 (已幫你填好)
         const firebaseConfig = {
             apiKey: "AIzaSyD5ZKo2a3q4VUjaQQDIAeQYCH12F6Yjy_4",
             authDomain: "my-anonymous-treehole.firebaseapp.com",
@@ -157,7 +146,6 @@
             measurementId: "G-D7Y9PJZ4LY"
         };
 
-        // 3. 初始化
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const postRef = ref(db, 'posts');
@@ -166,69 +154,83 @@
         const sendBtn = document.getElementById('sendBtn');
         const feed = document.getElementById('postFeed');
 
-        // 4. 發布貼文邏輯
+        // 本地存儲：記錄使用者點過哪些讚
+        let myLikes = JSON.parse(localStorage.getItem('myLikes')) || [];
+
         sendBtn.onclick = () => {
             const content = input.value.trim();
-            if (!content) return alert("內容不能為空喔！");
-            
+            if (!content) return;
             const newPostRef = push(postRef);
-            set(newPostRef, {
-                content: content,
-                likes: 0,
-                timestamp: serverTimestamp()
-            }).then(() => {
-                input.value = "";
-            });
+            set(newPostRef, { content: content, likes: 0, timestamp: serverTimestamp() });
+            input.value = "";
         };
 
-        // 5. 即時顯示新貼文
         onChildAdded(postRef, (snapshot) => {
             const postId = snapshot.key;
             const data = snapshot.val();
-            
             const postDiv = document.createElement('div');
             postDiv.className = 'post';
-            postDiv.id = `post-${postId}`;
+            
+            // 檢查是否已點過讚
+            const isLiked = myLikes.includes(postId);
+
             postDiv.innerHTML = `
                 <div class="post-content">${data.content}</div>
                 <div class="actions">
-                    <button class="action-btn" id="like-btn-${postId}">❤️ <span id="like-count-${postId}">${data.likes || 0}</span></button>
-                    <button class="action-btn" onclick="document.getElementById('reply-sec-${postId}').style.display = 'block'">💬 回覆</button>
+                    <button class="action-btn ${isLiked ? 'active' : ''}" id="like-btn-${postId}">
+                        <span id="heart-${postId}">${isLiked ? '❤️' : '🤍'}</span> 
+                        <span id="like-count-${postId}">${data.likes || 0}</span>
+                    </button>
+                    <button class="action-btn" onclick="const s=document.getElementById('reply-sec-${postId}'); s.style.display=s.style.display==='block'?'none':'block'">💬 回覆</button>
                 </div>
                 <div class="reply-section" id="reply-sec-${postId}">
                     <div id="reply-list-${postId}"></div>
                     <div class="reply-input-group">
-                        <input type="text" class="reply-input" id="reply-in-${postId}" placeholder="寫下留言...">
-                        <button class="action-btn" id="reply-btn-${postId}" style="background:var(--primary); color:white; width: 60px;">送出</button>
+                        <input type="text" class="reply-input" id="reply-in-${postId}" placeholder="悄悄話...">
+                        <button class="action-btn" id="reply-btn-${postId}" style="background:var(--primary); color:#121212">送出</button>
                     </div>
                 </div>
             `;
             feed.insertBefore(postDiv, feed.firstChild);
 
-            // 6. 按讚功能 (即時同步)
-            document.getElementById(`like-btn-${postId}`).onclick = () => {
+            // 按讚與收回邏輯
+            document.getElementById(`like-btn-${postId}`).onclick = function() {
                 const countRef = ref(db, `posts/${postId}/likes`);
-                runTransaction(countRef, (currentLikes) => (currentLikes || 0) + 1);
+                const index = myLikes.indexOf(postId);
+                
+                if (index === -1) {
+                    // 點讚
+                    runTransaction(countRef, (current) => (current || 0) + 1);
+                    myLikes.push(postId);
+                    this.classList.add('active');
+                    document.getElementById(`heart-${postId}`).innerText = '❤️';
+                } else {
+                    // 收回讚
+                    runTransaction(countRef, (current) => (current || 0) - 1);
+                    myLikes.splice(index, 1);
+                    this.classList.remove('active');
+                    document.getElementById(`heart-${postId}`).innerText = '🤍';
+                }
+                localStorage.setItem('myLikes', JSON.stringify(myLikes));
             };
+
             onValue(ref(db, `posts/${postId}/likes`), (snap) => {
-                document.getElementById(`like-count-${postId}`).innerText = snap.val() || 0;
+                const countSpan = document.getElementById(`like-count-${postId}`);
+                if(countSpan) countSpan.innerText = snap.val() || 0;
             });
 
-            // 7. 回覆功能 (即時同步)
+            // 回覆
             document.getElementById(`reply-btn-${postId}`).onclick = () => {
-                const rInput = document.getElementById(`reply-in-${postId}`);
-                if (!rInput.value.trim()) return;
-                const rRef = push(ref(db, `posts/${postId}/replies`));
-                set(rRef, { content: rInput.value });
-                rInput.value = "";
+                const rIn = document.getElementById(`reply-in-${postId}`);
+                if (!rIn.value.trim()) return;
+                push(ref(db, `posts/${postId}/replies`), { content: rIn.value });
+                rIn.value = "";
             };
             onChildAdded(ref(db, `posts/${postId}/replies`), (rSnap) => {
-                const rData = rSnap.val();
                 const rDiv = document.createElement('div');
                 rDiv.className = 'reply-item';
-                rDiv.innerText = `匿名：${rData.content}`;
+                rDiv.innerText = `💬 ${rSnap.val().content}`;
                 document.getElementById(`reply-list-${postId}`).appendChild(rDiv);
-                document.getElementById(`reply-sec-${postId}`).style.display = 'block';
             });
         });
     </script>

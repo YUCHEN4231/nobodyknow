@@ -3,74 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>匿語 - 森林樹洞</title>
+    <title>匿語 - 互動森林</title>
     <style>
-        :root { --bg: #121212; --card: #1e1e1e; --primary: #81b29a; --text: #e0e0e0; --sub: #888; --heart: #e07a5f; --overlay: rgba(0,0,0,0.8); }
+        :root { 
+            --bg: #0f0f0f; --card: #1a1a1a; --text: #e0e0e0; --sub: #777; --heart: #e07a5f;
+            --primary: #81b29a; --glow: rgba(129, 178, 154, 0.2); 
+        }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px; }
         .container { width: 100%; max-width: 500px; position: relative; }
         
-        /* 設定齒輪 */
-        .settings-icon { position: absolute; left: 0; top: 5px; font-size: 22px; cursor: pointer; color: var(--sub); z-index: 10; transition: transform 0.3s; }
-        .settings-icon:hover { transform: rotate(90deg); color: var(--primary); }
+        /* 頂部圖示區 */
+        .top-icons { position: absolute; width: 100%; top: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .icon-btn { font-size: 20px; cursor: pointer; color: var(--sub); transition: 0.3s; position: relative; }
+        .icon-btn:hover { color: var(--primary); }
+        .dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #ff4d4d; border-radius: 50%; display: none; border: 1px solid var(--bg); }
 
-        /* 設定彈窗 */
-        #settingsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); z-index: 100; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; border: 1px solid #333; }
-        .modal-header { font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--primary); border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .setting-item { margin-bottom: 20px; }
-        .setting-label { font-size: 14px; color: var(--sub); margin-bottom: 8px; display: block; }
-
-        /* 其他元件樣式保持一致 */
-        .box { background: var(--card); padding: 18px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 20px; }
-        textarea, .modal-input { width: 100%; background: #2a2a2a; border: 1px solid #333; border-radius: 10px; padding: 12px; box-sizing: border-box; color: white; outline: none; font-size: 16px; }
-        button { margin-top: 10px; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: opacity 0.2s; }
-        button#mainBtn { background: var(--primary); color: #121212; width: 100%; }
-        .btn-sub { background: #333; color: var(--text); width: 100%; margin-top: 5px; }
+        /* 輸入與卡片樣式 */
+        .box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 25px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        textarea { width: 100%; height: 80px; background: transparent; border: none; color: white; outline: none; resize: none; font-size: 16px; }
+        .char-count { position: absolute; bottom: 65px; right: 25px; font-size: 11px; color: var(--sub); }
         
+        button#mainBtn { background: var(--primary); color: #000; border: none; border-radius: 12px; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
+        button#mainBtn:disabled { background: #333; color: #666; cursor: not-allowed; }
+
         /* 貼文卡片 */
-        .post { background: var(--card); padding: 18px; border-radius: 15px; margin-bottom: 15px; position: relative; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .avatar { font-size: 24px; background: #333; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        .post-info { display: flex; flex-direction: column; }
-        .post-time { font-size: 11px; color: var(--sub); margin-top: 2px; }
-        .post-content { line-height: 1.6; font-size: 16px; word-break: break-all; }
-        .actions { display: flex; gap: 12px; border-top: 1px solid #333; padding-top: 12px; margin-top: 12px; }
-        .btn-action { background: #2a2a2a; color: var(--sub); padding: 7px 14px; font-size: 13px; border-radius: 20px; border: none; cursor: pointer; }
-        .btn-action.active { color: var(--heart); background: #3d2b2b; }
-        .reply-box { margin-top: 10px; background: #252525; padding: 10px; border-radius: 10px; display: none; }
-        .r-item { font-size: 13px; padding: 6px 0; border-bottom: 1px solid #333; display: flex; gap: 8px; align-items: flex-start; }
+        .post { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 20px; transition: 0.4s; }
+        .post:hover { border-color: var(--primary); box-shadow: 0 0 15px var(--glow); }
+        .primary-text { color: var(--primary); }
+        .post-time { font-size: 11px; color: var(--sub); }
+        .btn-action { background: #252525; color: var(--sub); padding: 7px 14px; font-size: 13px; border-radius: 20px; border: none; cursor: pointer; transition: 0.3s; margin-right: 10px; }
+
+        /* 彈窗 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; border: 1px solid #333; text-align: center; }
+        .noti-item { padding: 12px; border-bottom: 1px solid #222; font-size: 14px; color: var(--text); text-align: left; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="settings-icon" onclick="toggleSettings(true)">⚙️</div>
+        <div class="top-icons">
+            <div class="icon-btn" onclick="openModal('settingsModal')">⚙️</div>
+            <div class="icon-btn" onclick="openNoti()">🔔<div id="notiDot" class="dot"></div></div>
+        </div>
 
-        <header style="text-align: center; margin-bottom: 20px;">
-            <h1 style="color: var(--primary); margin: 0; font-size: 24px;">匿語</h1>
-            <p style="color: var(--sub); font-size: 13px;">48小時後，秘密將隨風而去</p>
+        <header style="text-align: center; margin-bottom: 30px;">
+            <h1 class="primary-text" style="margin: 0; font-size: 28px; letter-spacing: 4px;">匿語</h1>
+            <p style="color: var(--sub); font-size: 13px; margin-top: 8px;">深夜的森林，聽你的秘密</p>
         </header>
 
         <div class="box">
-            <textarea id="postIn" placeholder="寫下現在的心情..."></textarea>
+            <textarea id="postIn" maxlength="200" placeholder="寫下心情..."></textarea>
+            <div id="charCount" class="char-count">0 / 200</div>
             <button id="mainBtn">發布貼文</button>
         </div>
-
         <div id="feed"></div>
     </div>
 
-    <div id="settingsModal">
+    <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">森林設定</div>
-            <div class="setting-item">
-                <label class="setting-label">自定義稱呼 (例如：森林之王)</label>
-                <input type="text" id="userNameInput" class="modal-input" placeholder="匿名">
-            </div>
-            <div class="setting-item">
-                <label class="setting-label">身份重置</label>
-                <button class="btn-sub" onclick="resetIdentity()">換一隻隨機動物</button>
-            </div>
-            <button id="mainBtn" onclick="saveSettings()">儲存並關閉</button>
+            <h3 class="primary-text">主題設定</h3>
+            <p style="font-size:12px; color:var(--sub)">輸入顏色名稱 (如: gold, pink, #66ccff)</p>
+            <input type="text" id="colorInput" style="width:100%; padding:10px; background:#222; border:1px solid #333; color:white; border-radius:10px;">
+            <button id="mainBtn" onclick="saveTheme()" style="margin-top:20px">套用顏色</button>
+            <button onclick="closeModal('settingsModal')" style="background:none; color:var(--sub); border:none; width:100%; margin-top:10px; cursor:pointer">返回</button>
+        </div>
+    </div>
+
+    <div id="notiModal" class="modal">
+        <div class="modal-content">
+            <h3 class="primary-text">最新回響</h3>
+            <div id="notiList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"></div>
+            <button id="mainBtn" onclick="clearNoti()">清除並關閉</button>
         </div>
     </div>
 
@@ -84,116 +87,89 @@
             databaseURL: "https://my-anonymous-treehole-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "my-anonymous-treehole"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const postRef = ref(db, 'posts');
 
-        // --- 設定功能相關邏輯 ---
-        window.toggleSettings = (show) => {
-            document.getElementById('settingsModal').style.display = show ? 'flex' : 'none';
-            if(show) document.getElementById('userNameInput').value = localStorage.getItem('niyu_name') || "";
+        // 主題色套用
+        const savedColor = localStorage.getItem('niyu_theme') || '#81b29a';
+        document.documentElement.style.setProperty('--primary', savedColor);
+
+        // 字數統計
+        const postIn = document.getElementById('postIn');
+        postIn.oninput = () => document.getElementById('charCount').innerText = `${postIn.value.length} / 200`;
+
+        // 通知邏輯
+        let myPosts = JSON.parse(localStorage.getItem('myPosts')) || [];
+        let myNotis = JSON.parse(localStorage.getItem('myNotis')) || [];
+        const updateDot = () => document.getElementById('notiDot').style.display = myNotis.length > 0 ? 'block' : 'none';
+        updateDot();
+
+        window.saveTheme = () => {
+            const c = document.getElementById('colorInput').value.trim();
+            if(c) { localStorage.setItem('niyu_theme', c); location.reload(); }
         };
 
-        window.saveSettings = () => {
-            const newName = document.getElementById('userNameInput').value.trim();
-            localStorage.setItem('niyu_name', newName);
-            toggleSettings(false);
-            location.reload(); // 重整以套用新名字
+        window.openNoti = () => {
+            const list = document.getElementById('notiList');
+            list.innerHTML = myNotis.length ? "" : "<p style='color:#555'>尚無新通知</p>";
+            myNotis.forEach(n => {
+                const item = document.createElement('div'); item.className = 'noti-item';
+                item.innerHTML = `✨ 有人對你的貼文點了愛心：<br><small style="color:#666">${n.content.substring(0,15)}...</small>`;
+                list.insertBefore(item, list.firstChild);
+            });
+            openModal('notiModal');
         };
 
-        window.resetIdentity = () => {
-            if(confirm("確定要重置身份嗎？你的隨機頭像會改變。")) {
-                localStorage.removeItem('niyu_uid');
-                location.reload();
-            }
-        };
-
-        // --- 核心功能 (語錄、頭像、時間) ---
-        const quotes = ["今天過得還好嗎？", "那些沒說出口的話，這裡聽你說...", "深呼吸，把煩惱留在這片森林吧。", "寫下現在最想說的一句話...", "辛苦了，在這裡休息一下吧。"];
-        document.getElementById('postIn').placeholder = quotes[Math.floor(Math.random() * quotes.length)];
+        window.clearNoti = () => { myNotis = []; localStorage.setItem('myNotis', JSON.stringify([])); updateDot(); closeModal('notiModal'); };
 
         const animals = ['🐶','🐱','🦊','🦁','🐸','🦄','🐨','🐼','🐹','🐯','🐙','🦋'];
-        let userId = localStorage.getItem('niyu_uid') || Math.random().toString(36).substring(7);
-        localStorage.setItem('niyu_uid', userId);
-
         const getAvatar = (id) => animals[Math.abs(id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) % animals.length];
-        const formatTime = (ts) => {
-            if(!ts) return "";
-            const d = new Date(ts);
-            return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        };
-
-        let myLikes = JSON.parse(localStorage.getItem('myLikes')) || [];
 
         document.getElementById('mainBtn').onclick = () => {
-            const val = document.getElementById('postIn').value.trim();
-            const customName = localStorage.getItem('niyu_name') || "";
-            if (val) { 
-                set(push(postRef), { 
-                    content: val, 
-                    likes: 0, 
-                    ts: serverTimestamp(),
-                    uid: userId,
-                    uName: customName // 儲存發文時的自定義稱呼
-                }); 
-                document.getElementById('postIn').value = ""; 
+            const val = postIn.value.trim();
+            if (val) {
+                const nRef = push(postRef);
+                set(nRef, { content: val, likes: 0, ts: serverTimestamp(), uid: localStorage.getItem('niyu_uid') || 'guest' });
+                myPosts.push(nRef.key);
+                localStorage.setItem('myPosts', JSON.stringify(myPosts));
+                postIn.value = ""; document.getElementById('charCount').innerText = "0 / 200";
             }
         };
 
         onChildAdded(postRef, (snap) => {
             const id = snap.key, data = snap.val();
-            if (data.ts && (Date.now() - data.ts > 48 * 60 * 60 * 1000)) return; 
+            if (data.ts && (Date.now() - data.ts > 48 * 60 * 60 * 1000)) return;
 
-            const isL = myLikes.includes(id);
-            const avatar = getAvatar(data.uid || id);
-            const displayName = data.uName ? data.uName : "匿名";
-            
             const div = document.createElement('div'); div.className = 'post';
             div.innerHTML = `
-                <div class="post-header">
-                    <div class="avatar">${avatar}</div>
-                    <div class="post-info">
-                        <span style="font-size:14px; font-weight:bold; color:var(--primary)">${displayName}${avatar}</span>
-                        <span class="post-time">${formatTime(data.ts)}</span>
-                    </div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <div style="font-size:20px; background:#252525; padding:8px; border-radius:50%">${getAvatar(data.uid)}</div>
+                    <div><b class="primary-text">匿名${getAvatar(data.uid)}</b><br><span class="post-time">${new Date(data.ts).toLocaleString()}</span></div>
                 </div>
-                <div class="post-content">${data.content}</div>
-                <div class="actions">
-                    <button class="btn-action ${isL?'active':''}" id="l-${id}">${isL?'❤️':'🤍'} <span id="c-${id}">${data.likes||0}</span></button>
-                    <button class="btn-action" onclick="const s=document.getElementById('r-s-${id}'); s.style.display=s.style.display==='block'?'none':'block'">💬 回覆</button>
-                </div>
-                <div class="reply-box" id="r-s-${id}"><div id="r-l-${id}"></div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <input type="text" class="modal-input" style="padding:8px; font-size:14px;" id="r-i-${id}" placeholder="留言...">
-                        <button class="btn-action" style="background:var(--primary); color:#121212" id="r-b-${id}">送出</button>
-                    </div>
+                <div style="line-height:1.6; font-size:16px;">${data.content}</div>
+                <div style="margin-top:15px; border-top:1px solid #252525; padding-top:12px;">
+                    <button class="btn-action" id="l-${id}">❤️ <span id="c-${id}">${data.likes||0}</span></button>
                 </div>`;
             document.getElementById('feed').insertBefore(div, document.getElementById('feed').firstChild);
 
-            // 按讚回覆邏輯
-            document.getElementById(`l-${id}`).onclick = function() {
-                const idx = myLikes.indexOf(id);
-                runTransaction(ref(db, `posts/${id}/likes`), c => idx===-1 ? (c||0)+1 : (c||0)-1);
-                if(idx===-1) { myLikes.push(id); this.classList.add('active'); this.innerHTML = `❤️ <span id="c-${id}"></span>`; }
-                else { myLikes.splice(idx, 1); this.classList.remove('active'); this.innerHTML = `🤍 <span id="c-${id}"></span>`; }
-                localStorage.setItem('myLikes', JSON.stringify(myLikes));
-            };
-            onValue(ref(db, `posts/${id}/likes`), s => { const el = document.getElementById(`c-${id}`); if(el) el.innerText = s.val()||0; });
-            document.getElementById(`r-b-${id}`).onclick = () => {
-                const i = document.getElementById(`r-i-${id}`); if(!i.value.trim()) return;
-                const rName = localStorage.getItem('niyu_name') || "";
-                push(ref(db, `posts/${id}/replies`), { c: i.value, uid: userId, uName: rName }); i.value = "";
-            };
-            onChildAdded(ref(db, `posts/${id}/replies`), s => {
-                const rd = s.val();
-                const ra = getAvatar(rd.uid || s.key);
-                const rn = rd.uName ? rd.uName : "匿名";
-                const d = document.createElement('div'); d.className='r-item'; 
-                d.innerHTML=`<span style="font-size:16px">${ra}</span><span style="color:var(--primary); font-weight:bold; font-size:11px">${rn}:</span><span>${rd.c}</span>`;
-                document.getElementById(`r-l-${id}`).appendChild(d);
+            onValue(ref(db, `posts/${id}/likes`), s => {
+                const count = s.val() || 0;
+                const el = document.getElementById(`c-${id}`);
+                if(el) {
+                    if(myPosts.includes(id) && count > (parseInt(el.innerText) || 0)) {
+                        myNotis.push({ content: data.content });
+                        localStorage.setItem('myNotis', JSON.stringify(myNotis));
+                        updateDot();
+                    }
+                    el.innerText = count;
+                }
             });
+            document.getElementById(`l-${id}`).onclick = () => runTransaction(ref(db, `posts/${id}/likes`), c => (c||0)+1);
         });
+
+        window.openModal = (m) => document.getElementById(m).style.display = 'flex';
+        window.closeModal = (m) => document.getElementById(m).style.display = 'none';
     </script>
 </body>
 </html>

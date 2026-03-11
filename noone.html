@@ -3,44 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>匿語 (Ni-Yu) - 森林樹洞</title>
+    <title>匿語 - 森林樹洞</title>
     <style>
-        :root { --bg: #121212; --card: #1e1e1e; --primary: #81b29a; --text: #e0e0e0; --sub: #888; --heart: #e07a5f; }
+        :root { --bg: #121212; --card: #1e1e1e; --primary: #81b29a; --text: #e0e0e0; --sub: #888; --heart: #e07a5f; --overlay: rgba(0,0,0,0.8); }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px; }
-        .container { width: 100%; max-width: 500px; }
+        .container { width: 100%; max-width: 500px; position: relative; }
         
-        /* 輸入框 */
-        .box { background: var(--card); padding: 18px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 20px; }
-        textarea { width: 100%; height: 80px; background: #2a2a2a; border: 1px solid #333; border-radius: 10px; padding: 12px; box-sizing: border-box; color: white; outline: none; resize: none; font-size: 16px; }
-        button#mainBtn { margin-top: 10px; padding: 12px; background: var(--primary); color: #121212; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
+        /* 設定齒輪 */
+        .settings-icon { position: absolute; left: 0; top: 5px; font-size: 22px; cursor: pointer; color: var(--sub); z-index: 10; transition: transform 0.3s; }
+        .settings-icon:hover { transform: rotate(90deg); color: var(--primary); }
 
+        /* 設定彈窗 */
+        #settingsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); z-index: 100; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; border: 1px solid #333; }
+        .modal-header { font-weight: bold; margin-bottom: 20px; font-size: 18px; color: var(--primary); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .setting-item { margin-bottom: 20px; }
+        .setting-label { font-size: 14px; color: var(--sub); margin-bottom: 8px; display: block; }
+
+        /* 其他元件樣式保持一致 */
+        .box { background: var(--card); padding: 18px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        textarea, .modal-input { width: 100%; background: #2a2a2a; border: 1px solid #333; border-radius: 10px; padding: 12px; box-sizing: border-box; color: white; outline: none; font-size: 16px; }
+        button { margin-top: 10px; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: opacity 0.2s; }
+        button#mainBtn { background: var(--primary); color: #121212; width: 100%; }
+        .btn-sub { background: #333; color: var(--text); width: 100%; margin-top: 5px; }
+        
         /* 貼文卡片 */
         .post { background: var(--card); padding: 18px; border-radius: 15px; margin-bottom: 15px; position: relative; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .avatar { font-size: 24px; background: #333; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .post-info { display: flex; flex-direction: column; }
         .post-time { font-size: 11px; color: var(--sub); margin-top: 2px; }
-        
         .post-content { line-height: 1.6; font-size: 16px; word-break: break-all; }
-
-        /* 按鈕區 */
         .actions { display: flex; gap: 12px; border-top: 1px solid #333; padding-top: 12px; margin-top: 12px; }
-        .btn { background: #2a2a2a; color: var(--sub); padding: 7px 14px; font-size: 13px; border-radius: 20px; border: none; cursor: pointer; }
-        .btn.active { color: var(--heart); background: #3d2b2b; }
-
-        /* 回覆區 */
+        .btn-action { background: #2a2a2a; color: var(--sub); padding: 7px 14px; font-size: 13px; border-radius: 20px; border: none; cursor: pointer; }
+        .btn-action.active { color: var(--heart); background: #3d2b2b; }
         .reply-box { margin-top: 10px; background: #252525; padding: 10px; border-radius: 10px; display: none; }
         .r-item { font-size: 13px; padding: 6px 0; border-bottom: 1px solid #333; display: flex; gap: 8px; align-items: flex-start; }
-        .r-input-group { display: flex; gap: 5px; margin-top: 10px; }
-        .r-input { flex: 1; padding: 8px; background: #333; border: 1px solid #444; border-radius: 8px; color: white; font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="settings-icon" onclick="toggleSettings(true)">⚙️</div>
+
         <header style="text-align: center; margin-bottom: 20px;">
-            <h1 style="color: var(--primary); margin: 0; font-size: 24px;">匿語 (Ni-Yu)</h1>
+            <h1 style="color: var(--primary); margin: 0; font-size: 24px;">匿語</h1>
             <p style="color: var(--sub); font-size: 13px;">48小時後，秘密將隨風而去</p>
         </header>
 
@@ -50,6 +57,21 @@
         </div>
 
         <div id="feed"></div>
+    </div>
+
+    <div id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">森林設定</div>
+            <div class="setting-item">
+                <label class="setting-label">自定義稱呼 (例如：森林之王)</label>
+                <input type="text" id="userNameInput" class="modal-input" placeholder="匿名">
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">身份重置</label>
+                <button class="btn-sub" onclick="resetIdentity()">換一隻隨機動物</button>
+            </div>
+            <button id="mainBtn" onclick="saveSettings()">儲存並關閉</button>
+        </div>
     </div>
 
     <script type="module">
@@ -67,15 +89,35 @@
         const db = getDatabase(app);
         const postRef = ref(db, 'posts');
 
-        // 動物清單
-        const animals = ['🐶','🐱','🦊','🦁','🐸','🦄','🐨','🐼','🐹','🐯','🐙','🦋'];
-        
-        // 取得使用者固定頭像 (基於本地ID)
-        let userId = localStorage.getItem('niyu_uid');
-        if(!userId) { userId = Math.random().toString(36).substring(7); localStorage.setItem('niyu_uid', userId); }
-        const getAvatar = (id) => animals[Math.abs(id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) % animals.length];
+        // --- 設定功能相關邏輯 ---
+        window.toggleSettings = (show) => {
+            document.getElementById('settingsModal').style.display = show ? 'flex' : 'none';
+            if(show) document.getElementById('userNameInput').value = localStorage.getItem('niyu_name') || "";
+        };
 
-        // 格式化時間
+        window.saveSettings = () => {
+            const newName = document.getElementById('userNameInput').value.trim();
+            localStorage.setItem('niyu_name', newName);
+            toggleSettings(false);
+            location.reload(); // 重整以套用新名字
+        };
+
+        window.resetIdentity = () => {
+            if(confirm("確定要重置身份嗎？你的隨機頭像會改變。")) {
+                localStorage.removeItem('niyu_uid');
+                location.reload();
+            }
+        };
+
+        // --- 核心功能 (語錄、頭像、時間) ---
+        const quotes = ["今天過得還好嗎？", "那些沒說出口的話，這裡聽你說...", "深呼吸，把煩惱留在這片森林吧。", "寫下現在最想說的一句話...", "辛苦了，在這裡休息一下吧。"];
+        document.getElementById('postIn').placeholder = quotes[Math.floor(Math.random() * quotes.length)];
+
+        const animals = ['🐶','🐱','🦊','🦁','🐸','🦄','🐨','🐼','🐹','🐯','🐙','🦋'];
+        let userId = localStorage.getItem('niyu_uid') || Math.random().toString(36).substring(7);
+        localStorage.setItem('niyu_uid', userId);
+
+        const getAvatar = (id) => animals[Math.abs(id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) % animals.length];
         const formatTime = (ts) => {
             if(!ts) return "";
             const d = new Date(ts);
@@ -86,12 +128,14 @@
 
         document.getElementById('mainBtn').onclick = () => {
             const val = document.getElementById('postIn').value.trim();
+            const customName = localStorage.getItem('niyu_name') || "";
             if (val) { 
                 set(push(postRef), { 
                     content: val, 
                     likes: 0, 
                     ts: serverTimestamp(),
-                    uid: userId // 存入發文者ID用於生成頭像
+                    uid: userId,
+                    uName: customName // 儲存發文時的自定義稱呼
                 }); 
                 document.getElementById('postIn').value = ""; 
             }
@@ -99,37 +143,35 @@
 
         onChildAdded(postRef, (snap) => {
             const id = snap.key, data = snap.val();
-            
-            // --- 48小時自動消失功能 ---
-            const now = Date.now();
-            if (data.ts && (now - data.ts > 48 * 60 * 60 * 1000)) return; 
-            // -----------------------
+            if (data.ts && (Date.now() - data.ts > 48 * 60 * 60 * 1000)) return; 
 
             const isL = myLikes.includes(id);
             const avatar = getAvatar(data.uid || id);
+            const displayName = data.uName ? data.uName : "匿名";
+            
             const div = document.createElement('div'); div.className = 'post';
             div.innerHTML = `
                 <div class="post-header">
                     <div class="avatar">${avatar}</div>
                     <div class="post-info">
-                        <span style="font-size:14px; font-weight:bold; color:var(--primary)">匿名${avatar}</span>
+                        <span style="font-size:14px; font-weight:bold; color:var(--primary)">${displayName}${avatar}</span>
                         <span class="post-time">${formatTime(data.ts)}</span>
                     </div>
                 </div>
                 <div class="post-content">${data.content}</div>
                 <div class="actions">
-                    <button class="btn ${isL?'active':''}" id="l-${id}">${isL?'❤️':'🤍'} <span id="c-${id}">${data.likes||0}</span></button>
-                    <button class="btn" onclick="const s=document.getElementById('r-s-${id}'); s.style.display=s.style.display==='block'?'none':'block'">💬 回覆</button>
+                    <button class="btn-action ${isL?'active':''}" id="l-${id}">${isL?'❤️':'🤍'} <span id="c-${id}">${data.likes||0}</span></button>
+                    <button class="btn-action" onclick="const s=document.getElementById('r-s-${id}'); s.style.display=s.style.display==='block'?'none':'block'">💬 回覆</button>
                 </div>
                 <div class="reply-box" id="r-s-${id}"><div id="r-l-${id}"></div>
-                    <div class="r-input-group">
-                        <input type="text" class="r-input" id="r-i-${id}" placeholder="留言...">
-                        <button class="btn" id="r-b-${id}">送出</button>
+                    <div style="display:flex; gap:5px; margin-top:10px;">
+                        <input type="text" class="modal-input" style="padding:8px; font-size:14px;" id="r-i-${id}" placeholder="留言...">
+                        <button class="btn-action" style="background:var(--primary); color:#121212" id="r-b-${id}">送出</button>
                     </div>
                 </div>`;
             document.getElementById('feed').insertBefore(div, document.getElementById('feed').firstChild);
 
-            // 按讚與回覆邏輯
+            // 按讚回覆邏輯
             document.getElementById(`l-${id}`).onclick = function() {
                 const idx = myLikes.indexOf(id);
                 runTransaction(ref(db, `posts/${id}/likes`), c => idx===-1 ? (c||0)+1 : (c||0)-1);
@@ -140,13 +182,15 @@
             onValue(ref(db, `posts/${id}/likes`), s => { const el = document.getElementById(`c-${id}`); if(el) el.innerText = s.val()||0; });
             document.getElementById(`r-b-${id}`).onclick = () => {
                 const i = document.getElementById(`r-i-${id}`); if(!i.value.trim()) return;
-                push(ref(db, `posts/${id}/replies`), { c: i.value, uid: userId }); i.value = "";
+                const rName = localStorage.getItem('niyu_name') || "";
+                push(ref(db, `posts/${id}/replies`), { c: i.value, uid: userId, uName: rName }); i.value = "";
             };
             onChildAdded(ref(db, `posts/${id}/replies`), s => {
                 const rd = s.val();
                 const ra = getAvatar(rd.uid || s.key);
+                const rn = rd.uName ? rd.uName : "匿名";
                 const d = document.createElement('div'); d.className='r-item'; 
-                d.innerHTML=`<span>${ra}</span><span>${rd.c}</span>`;
+                d.innerHTML=`<span style="font-size:16px">${ra}</span><span style="color:var(--primary); font-weight:bold; font-size:11px">${rn}:</span><span>${rd.c}</span>`;
                 document.getElementById(`r-l-${id}`).appendChild(d);
             });
         });

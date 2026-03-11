@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>匿語 - 互動森林</title>
+    <title>匿語 (Ni-Yu) - 互動森林</title>
     <style>
         :root { 
             --bg: #0f0f0f; --card: #1a1a1a; --text: #e0e0e0; --sub: #777; --heart: #e07a5f;
+            /* 初始主題色 */
             --primary: #81b29a; --glow: rgba(129, 178, 154, 0.2); 
         }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px; }
@@ -19,24 +20,20 @@
         .dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #ff4d4d; border-radius: 50%; display: none; border: 1px solid var(--bg); }
 
         /* 輸入與卡片樣式 */
-        .box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 25px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        textarea { width: 100%; height: 80px; background: transparent; border: none; color: white; outline: none; resize: none; font-size: 16px; }
-        .char-count { position: absolute; bottom: 65px; right: 25px; font-size: 11px; color: var(--sub); }
-        
-        button#mainBtn { background: var(--primary); color: #000; border: none; border-radius: 12px; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
-        button#mainBtn:disabled { background: #333; color: #666; cursor: not-allowed; }
-
-        /* 貼文卡片 */
-        .post { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 20px; transition: 0.4s; }
+        .box, .post { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 20px; position: relative; transition: 0.3s; }
         .post:hover { border-color: var(--primary); box-shadow: 0 0 15px var(--glow); }
+        textarea { width: 100%; height: 80px; background: transparent; border: none; color: white; outline: none; resize: none; font-size: 16px; }
+        button#mainBtn { background: var(--primary); color: #000; border: none; border-radius: 12px; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        
+        /* 彈窗共通樣式 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; border: 1px solid #333; }
+        .noti-item { padding: 12px; border-bottom: 1px solid #222; font-size: 14px; color: var(--text); }
+        
         .primary-text { color: var(--primary); }
         .post-time { font-size: 11px; color: var(--sub); }
-        .btn-action { background: #252525; color: var(--sub); padding: 7px 14px; font-size: 13px; border-radius: 20px; border: none; cursor: pointer; transition: 0.3s; margin-right: 10px; }
-
-        /* 彈窗 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; border: 1px solid #333; text-align: center; }
-        .noti-item { padding: 12px; border-bottom: 1px solid #222; font-size: 14px; color: var(--text); text-align: left; }
+        .btn-action { background: #252525; color: var(--sub); padding: 6px 12px; font-size: 13px; border-radius: 20px; border: none; cursor: pointer; margin-right: 10px; }
+        .btn-action.active { color: var(--heart); }
     </style>
 </head>
 <body>
@@ -46,14 +43,13 @@
             <div class="icon-btn" onclick="openNoti()">🔔<div id="notiDot" class="dot"></div></div>
         </div>
 
-        <header style="text-align: center; margin-bottom: 30px;">
-            <h1 class="primary-text" style="margin: 0; font-size: 28px; letter-spacing: 4px;">匿語</h1>
-            <p style="color: var(--sub); font-size: 13px; margin-top: 8px;">深夜的森林，聽你的秘密</p>
+        <header style="text-align: center; margin-bottom: 25px;">
+            <h1 class="primary-text" style="margin: 0; font-size: 26px;">匿語 (Ni-Yu)</h1>
+            <p style="color: var(--sub); font-size: 13px;">互動森林：感受聲音的回響</p>
         </header>
 
         <div class="box">
-            <textarea id="postIn" maxlength="200" placeholder="寫下心情..."></textarea>
-            <div id="charCount" class="char-count">0 / 200</div>
+            <textarea id="postIn" placeholder="寫下心情..."></textarea>
             <button id="mainBtn">發布貼文</button>
         </div>
         <div id="feed"></div>
@@ -61,19 +57,20 @@
 
     <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <h3 class="primary-text">主題設定</h3>
-            <p style="font-size:12px; color:var(--sub)">輸入顏色名稱 (如: gold, pink, #66ccff)</p>
-            <input type="text" id="colorInput" style="width:100%; padding:10px; background:#222; border:1px solid #333; color:white; border-radius:10px;">
-            <button id="mainBtn" onclick="saveTheme()" style="margin-top:20px">套用顏色</button>
-            <button onclick="closeModal('settingsModal')" style="background:none; color:var(--sub); border:none; width:100%; margin-top:10px; cursor:pointer">返回</button>
+            <h3 class="primary-text">森林設定</h3>
+            <label style="font-size:12px; color:var(--sub)">主題顏色 (如: orange, pink, #66ccff)</label>
+            <input type="text" id="colorInput" style="width:100%; padding:10px; background:#222; border:1px solid #333; color:white; border-radius:10px; margin-top:5px;">
+            <button id="mainBtn" onclick="saveTheme()" style="margin-top:20px">更換並儲存</button>
+            <button onclick="closeModal('settingsModal')" style="background:none; color:var(--sub); border:none; width:100%; margin-top:10px; cursor:pointer">取消</button>
         </div>
     </div>
 
     <div id="notiModal" class="modal">
-        <div class="modal-content">
-            <h3 class="primary-text">最新回響</h3>
-            <div id="notiList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"></div>
-            <button id="mainBtn" onclick="clearNoti()">清除並關閉</button>
+        <div class="modal-content" style="max-height: 400px; overflow-y: auto;">
+            <h3 class="primary-text">通知中心</h3>
+            <div id="notiList"></div>
+            <button id="mainBtn" onclick="clearNoti()" style="margin-top:20px">清除所有通知</button>
+            <button onclick="closeModal('notiModal')" style="background:none; color:var(--sub); border:none; width:100%; margin-top:10px; cursor:pointer">關閉</button>
         </div>
     </div>
 
@@ -91,49 +88,54 @@
         const db = getDatabase(app);
         const postRef = ref(db, 'posts');
 
-        // 主題色套用
+        // --- 主題顏色初始化 ---
         const savedColor = localStorage.getItem('niyu_theme') || '#81b29a';
         document.documentElement.style.setProperty('--primary', savedColor);
 
-        // 字數統計
-        const postIn = document.getElementById('postIn');
-        postIn.oninput = () => document.getElementById('charCount').innerText = `${postIn.value.length} / 200`;
+        window.saveTheme = () => {
+            const color = document.getElementById('colorInput').value.trim();
+            if(color) {
+                localStorage.setItem('niyu_theme', color);
+                location.reload();
+            }
+        };
 
-        // 通知邏輯
+        // --- 通知與身分邏輯 ---
         let myPosts = JSON.parse(localStorage.getItem('myPosts')) || [];
         let myNotis = JSON.parse(localStorage.getItem('myNotis')) || [];
-        const updateDot = () => document.getElementById('notiDot').style.display = myNotis.length > 0 ? 'block' : 'none';
-        updateDot();
+        let userId = localStorage.getItem('niyu_uid') || Math.random().toString(36).substring(7);
+        localStorage.setItem('niyu_uid', userId);
 
-        window.saveTheme = () => {
-            const c = document.getElementById('colorInput').value.trim();
-            if(c) { localStorage.setItem('niyu_theme', c); location.reload(); }
+        const updateNotiUI = () => {
+            document.getElementById('notiDot').style.display = myNotis.length > 0 ? 'block' : 'none';
         };
+        updateNotiUI();
 
         window.openNoti = () => {
             const list = document.getElementById('notiList');
-            list.innerHTML = myNotis.length ? "" : "<p style='color:#555'>尚無新通知</p>";
+            list.innerHTML = myNotis.length ? "" : "<p style='color:#555; text-align:center'>目前沒有新消息</p>";
             myNotis.forEach(n => {
                 const item = document.createElement('div'); item.className = 'noti-item';
-                item.innerHTML = `✨ 有人對你的貼文點了愛心：<br><small style="color:#666">${n.content.substring(0,15)}...</small>`;
+                item.innerHTML = `✨ <b>有人</b> ${n.type === 'like' ? '按讚了' : '回覆了'} 你的貼文：<br><small style="color:#666">${n.content.substring(0,20)}...</small>`;
                 list.insertBefore(item, list.firstChild);
             });
             openModal('notiModal');
         };
 
-        window.clearNoti = () => { myNotis = []; localStorage.setItem('myNotis', JSON.stringify([])); updateDot(); closeModal('notiModal'); };
+        window.clearNoti = () => { myNotis = []; localStorage.setItem('myNotis', JSON.stringify([])); updateNotiUI(); closeModal('notiModal'); };
 
+        // --- 核心功能 ---
         const animals = ['🐶','🐱','🦊','🦁','🐸','🦄','🐨','🐼','🐹','🐯','🐙','🦋'];
         const getAvatar = (id) => animals[Math.abs(id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) % animals.length];
 
         document.getElementById('mainBtn').onclick = () => {
-            const val = postIn.value.trim();
+            const val = document.getElementById('postIn').value.trim();
             if (val) {
-                const nRef = push(postRef);
-                set(nRef, { content: val, likes: 0, ts: serverTimestamp(), uid: localStorage.getItem('niyu_uid') || 'guest' });
-                myPosts.push(nRef.key);
+                const newPostRef = push(postRef);
+                set(newPostRef, { content: val, likes: 0, ts: serverTimestamp(), uid: userId });
+                myPosts.push(newPostRef.key);
                 localStorage.setItem('myPosts', JSON.stringify(myPosts));
-                postIn.value = ""; document.getElementById('charCount').innerText = "0 / 200";
+                document.getElementById('postIn').value = "";
             }
         };
 
@@ -143,31 +145,36 @@
 
             const div = document.createElement('div'); div.className = 'post';
             div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <div style="font-size:20px; background:#252525; padding:8px; border-radius:50%">${getAvatar(data.uid)}</div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <div style="font-size:22px;">${getAvatar(data.uid)}</div>
                     <div><b class="primary-text">匿名${getAvatar(data.uid)}</b><br><span class="post-time">${new Date(data.ts).toLocaleString()}</span></div>
                 </div>
-                <div style="line-height:1.6; font-size:16px;">${data.content}</div>
-                <div style="margin-top:15px; border-top:1px solid #252525; padding-top:12px;">
+                <div style="line-height:1.6">${data.content}</div>
+                <div style="margin-top:15px;">
                     <button class="btn-action" id="l-${id}">❤️ <span id="c-${id}">${data.likes||0}</span></button>
+                    <button class="btn-action" onclick="alert('回覆功能開發中')">💬 回覆</button>
                 </div>`;
             document.getElementById('feed').insertBefore(div, document.getElementById('feed').firstChild);
 
+            // 監聽按讚通知
             onValue(ref(db, `posts/${id}/likes`), s => {
-                const count = s.val() || 0;
+                const newLikes = s.val() || 0;
                 const el = document.getElementById(`c-${id}`);
                 if(el) {
-                    if(myPosts.includes(id) && count > (parseInt(el.innerText) || 0)) {
-                        myNotis.push({ content: data.content });
+                    // 如果這篇是我的，且讚數增加，就推播通知
+                    if(myPosts.includes(id) && newLikes > (parseInt(el.innerText) || 0)) {
+                        myNotis.push({ type: 'like', content: data.content, ts: Date.now() });
                         localStorage.setItem('myNotis', JSON.stringify(myNotis));
-                        updateDot();
+                        updateNotiUI();
                     }
-                    el.innerText = count;
+                    el.innerText = newLikes;
                 }
             });
+
             document.getElementById(`l-${id}`).onclick = () => runTransaction(ref(db, `posts/${id}/likes`), c => (c||0)+1);
         });
 
+        // 彈窗控制
         window.openModal = (m) => document.getElementById(m).style.display = 'flex';
         window.closeModal = (m) => document.getElementById(m).style.display = 'none';
     </script>

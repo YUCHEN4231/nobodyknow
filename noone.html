@@ -3,132 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>匿語 - 深夜樹洞</title>
+    <title>匿語 (Ni-Yu) - 森林樹洞</title>
     <style>
-        :root { 
-            --bg: #121212;          /* 背景深黑 */
-            --card-bg: #1e1e1e;     /* 卡片深灰 */
-            --primary: #81b29a;     /* 森林綠 */
-            --secondary: #333333;   /* 按鈕背景 */
-            --text-main: #e0e0e0;   /* 主文字 */
-            --text-sub: #a0a0a0;    /* 次要文字 */
-            --accent: #e07a5f;      /* 按讚紅 */
-        }
-        body { 
-            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 20px; 
-            color: var(--text-main);
-        }
+        :root { --bg: #121212; --card: #1e1e1e; --primary: #81b29a; --text: #e0e0e0; --sub: #888; --heart: #e07a5f; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px; }
         .container { width: 100%; max-width: 500px; }
         
-        header { text-align: center; margin-bottom: 30px; }
-        h1 { color: var(--primary); letter-spacing: 2px; margin-bottom: 5px; }
-        .subtitle { color: var(--text-sub); font-size: 0.9em; }
+        /* 輸入框 */
+        .box { background: var(--card); padding: 18px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        textarea { width: 100%; height: 80px; background: #2a2a2a; border: 1px solid #333; border-radius: 10px; padding: 12px; box-sizing: border-box; color: white; outline: none; resize: none; font-size: 16px; }
+        button#mainBtn { margin-top: 10px; padding: 12px; background: var(--primary); color: #121212; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
 
-        /* 輸入框樣式 */
-        .post-box { 
-            background: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
-            margin-bottom: 25px; 
-        }
-        textarea { 
-            width: 100%; 
-            height: 90px; 
-            background: #2a2a2a;
-            border: 1px solid #333;
-            border-radius: 10px; 
-            padding: 12px; 
-            box-sizing: border-box; 
-            resize: none; 
-            font-size: 16px; 
-            color: white;
-            outline: none;
-        }
-        textarea:focus { border-color: var(--primary); }
-        
-        button { 
-            margin-top: 10px; 
-            padding: 12px; 
-            background: var(--primary); 
-            color: #121212; 
-            border: none; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            width: 100%;
-        }
-
-        /* 貼文樣式 */
-        .post { 
-            background: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 15px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            animation: fadeIn 0.4s ease;
-        }
+        /* 貼文卡片 */
+        .post { background: var(--card); padding: 18px; border-radius: 15px; margin-bottom: 15px; position: relative; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .avatar { font-size: 24px; background: #333; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .post-info { display: flex; flex-direction: column; }
+        .post-time { font-size: 11px; color: var(--sub); margin-top: 2px; }
+        
+        .post-content { line-height: 1.6; font-size: 16px; word-break: break-all; }
 
-        .post-content { font-size: 17px; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; }
-        
-        .actions { 
-            display: flex; 
-            gap: 15px; 
-            border-top: 1px solid #333; 
-            padding-top: 12px; 
-        }
-        .action-btn { 
-            background: var(--secondary); 
-            color: var(--text-sub); 
-            padding: 6px 12px; 
-            font-size: 14px; 
-            border-radius: 20px; 
-            width: auto; 
-            margin: 0; 
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            border: none;
-            cursor: pointer;
-        }
-        .action-btn.active { color: var(--accent); background: #3d2b2b; }
-        
-        /* 回覆區域 */
-        .reply-section { 
-            margin-top: 12px; 
-            background: #252525; 
-            padding: 12px; 
-            border-radius: 10px; 
-            display: none; 
-        }
-        .reply-item { font-size: 14px; border-bottom: 1px solid #333; padding: 8px 0; color: var(--text-sub); }
-        .reply-item:last-child { border-bottom: none; }
-        
-        .reply-input-group { display: flex; gap: 8px; margin-top: 10px; }
-        .reply-input { flex: 1; padding: 8px; background: #333; border: 1px solid #444; border-radius: 6px; color: white; }
+        /* 按鈕區 */
+        .actions { display: flex; gap: 12px; border-top: 1px solid #333; padding-top: 12px; margin-top: 12px; }
+        .btn { background: #2a2a2a; color: var(--sub); padding: 7px 14px; font-size: 13px; border-radius: 20px; border: none; cursor: pointer; }
+        .btn.active { color: var(--heart); background: #3d2b2b; }
+
+        /* 回覆區 */
+        .reply-box { margin-top: 10px; background: #252525; padding: 10px; border-radius: 10px; display: none; }
+        .r-item { font-size: 13px; padding: 6px 0; border-bottom: 1px solid #333; display: flex; gap: 8px; align-items: flex-start; }
+        .r-input-group { display: flex; gap: 5px; margin-top: 10px; }
+        .r-input { flex: 1; padding: 8px; background: #333; border: 1px solid #444; border-radius: 8px; color: white; font-size: 14px; }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <header>
-            <h1>匿語</h1>
-            <p class="subtitle">深夜的樹洞，聽你的秘密</p>
+        <header style="text-align: center; margin-bottom: 20px;">
+            <h1 style="color: var(--primary); margin: 0; font-size: 24px;">匿語 (Ni-Yu)</h1>
+            <p style="color: var(--sub); font-size: 13px;">48小時後，秘密將隨風而去</p>
         </header>
 
-        <div class="post-box">
-            <textarea id="postInput" placeholder="在這裡傾訴你的心聲..."></textarea>
-            <button id="sendBtn">發布貼文</button>
+        <div class="box">
+            <textarea id="postIn" placeholder="寫下現在的心情..."></textarea>
+            <button id="mainBtn">發布貼文</button>
         </div>
 
-        <div id="postFeed"></div>
+        <div id="feed"></div>
     </div>
 
     <script type="module">
@@ -139,101 +60,96 @@
             apiKey: "AIzaSyD5ZKo2a3q4VUjaQQDIAeQYCH12F6Yjy_4",
             authDomain: "my-anonymous-treehole.firebaseapp.com",
             databaseURL: "https://my-anonymous-treehole-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "my-anonymous-treehole",
-            storageBucket: "my-anonymous-treehole.firebasestorage.app",
-            messagingSenderId: "547306113970",
-            appId: "1:547306113970:web:4b26b8a4bc6de1bfdf32ab",
-            measurementId: "G-D7Y9PJZ4LY"
+            projectId: "my-anonymous-treehole"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const postRef = ref(db, 'posts');
 
-        const input = document.getElementById('postInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const feed = document.getElementById('postFeed');
+        // 動物清單
+        const animals = ['🐶','🐱','🦊','🦁','🐸','🦄','🐨','🐼','🐹','🐯','🐙','🦋'];
+        
+        // 取得使用者固定頭像 (基於本地ID)
+        let userId = localStorage.getItem('niyu_uid');
+        if(!userId) { userId = Math.random().toString(36).substring(7); localStorage.setItem('niyu_uid', userId); }
+        const getAvatar = (id) => animals[Math.abs(id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) % animals.length];
 
-        // 本地存儲：記錄使用者點過哪些讚
-        let myLikes = JSON.parse(localStorage.getItem('myLikes')) || [];
-
-        sendBtn.onclick = () => {
-            const content = input.value.trim();
-            if (!content) return;
-            const newPostRef = push(postRef);
-            set(newPostRef, { content: content, likes: 0, timestamp: serverTimestamp() });
-            input.value = "";
+        // 格式化時間
+        const formatTime = (ts) => {
+            if(!ts) return "";
+            const d = new Date(ts);
+            return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
         };
 
-        onChildAdded(postRef, (snapshot) => {
-            const postId = snapshot.key;
-            const data = snapshot.val();
-            const postDiv = document.createElement('div');
-            postDiv.className = 'post';
-            
-            // 檢查是否已點過讚
-            const isLiked = myLikes.includes(postId);
+        let myLikes = JSON.parse(localStorage.getItem('myLikes')) || [];
 
-            postDiv.innerHTML = `
-                <div class="post-content">${data.content}</div>
-                <div class="actions">
-                    <button class="action-btn ${isLiked ? 'active' : ''}" id="like-btn-${postId}">
-                        <span id="heart-${postId}">${isLiked ? '❤️' : '🤍'}</span> 
-                        <span id="like-count-${postId}">${data.likes || 0}</span>
-                    </button>
-                    <button class="action-btn" onclick="const s=document.getElementById('reply-sec-${postId}'); s.style.display=s.style.display==='block'?'none':'block'">💬 回覆</button>
-                </div>
-                <div class="reply-section" id="reply-sec-${postId}">
-                    <div id="reply-list-${postId}"></div>
-                    <div class="reply-input-group">
-                        <input type="text" class="reply-input" id="reply-in-${postId}" placeholder="悄悄話...">
-                        <button class="action-btn" id="reply-btn-${postId}" style="background:var(--primary); color:#121212">送出</button>
+        document.getElementById('mainBtn').onclick = () => {
+            const val = document.getElementById('postIn').value.trim();
+            if (val) { 
+                set(push(postRef), { 
+                    content: val, 
+                    likes: 0, 
+                    ts: serverTimestamp(),
+                    uid: userId // 存入發文者ID用於生成頭像
+                }); 
+                document.getElementById('postIn').value = ""; 
+            }
+        };
+
+        onChildAdded(postRef, (snap) => {
+            const id = snap.key, data = snap.val();
+            
+            // --- 48小時自動消失功能 ---
+            const now = Date.now();
+            if (data.ts && (now - data.ts > 48 * 60 * 60 * 1000)) return; 
+            // -----------------------
+
+            const isL = myLikes.includes(id);
+            const avatar = getAvatar(data.uid || id);
+            const div = document.createElement('div'); div.className = 'post';
+            div.innerHTML = `
+                <div class="post-header">
+                    <div class="avatar">${avatar}</div>
+                    <div class="post-info">
+                        <span style="font-size:14px; font-weight:bold; color:var(--primary)">匿名${avatar}</span>
+                        <span class="post-time">${formatTime(data.ts)}</span>
                     </div>
                 </div>
-            `;
-            feed.insertBefore(postDiv, feed.firstChild);
+                <div class="post-content">${data.content}</div>
+                <div class="actions">
+                    <button class="btn ${isL?'active':''}" id="l-${id}">${isL?'❤️':'🤍'} <span id="c-${id}">${data.likes||0}</span></button>
+                    <button class="btn" onclick="const s=document.getElementById('r-s-${id}'); s.style.display=s.style.display==='block'?'none':'block'">💬 回覆</button>
+                </div>
+                <div class="reply-box" id="r-s-${id}"><div id="r-l-${id}"></div>
+                    <div class="r-input-group">
+                        <input type="text" class="r-input" id="r-i-${id}" placeholder="留言...">
+                        <button class="btn" id="r-b-${id}">送出</button>
+                    </div>
+                </div>`;
+            document.getElementById('feed').insertBefore(div, document.getElementById('feed').firstChild);
 
-            // 按讚與收回邏輯
-            document.getElementById(`like-btn-${postId}`).onclick = function() {
-                const countRef = ref(db, `posts/${postId}/likes`);
-                const index = myLikes.indexOf(postId);
-                
-                if (index === -1) {
-                    // 點讚
-                    runTransaction(countRef, (current) => (current || 0) + 1);
-                    myLikes.push(postId);
-                    this.classList.add('active');
-                    document.getElementById(`heart-${postId}`).innerText = '❤️';
-                } else {
-                    // 收回讚
-                    runTransaction(countRef, (current) => (current || 0) - 1);
-                    myLikes.splice(index, 1);
-                    this.classList.remove('active');
-                    document.getElementById(`heart-${postId}`).innerText = '🤍';
-                }
+            // 按讚與回覆邏輯
+            document.getElementById(`l-${id}`).onclick = function() {
+                const idx = myLikes.indexOf(id);
+                runTransaction(ref(db, `posts/${id}/likes`), c => idx===-1 ? (c||0)+1 : (c||0)-1);
+                if(idx===-1) { myLikes.push(id); this.classList.add('active'); this.innerHTML = `❤️ <span id="c-${id}"></span>`; }
+                else { myLikes.splice(idx, 1); this.classList.remove('active'); this.innerHTML = `🤍 <span id="c-${id}"></span>`; }
                 localStorage.setItem('myLikes', JSON.stringify(myLikes));
             };
-
-            onValue(ref(db, `posts/${postId}/likes`), (snap) => {
-                const countSpan = document.getElementById(`like-count-${postId}`);
-                if(countSpan) countSpan.innerText = snap.val() || 0;
-            });
-
-            // 回覆
-            document.getElementById(`reply-btn-${postId}`).onclick = () => {
-                const rIn = document.getElementById(`reply-in-${postId}`);
-                if (!rIn.value.trim()) return;
-                push(ref(db, `posts/${postId}/replies`), { content: rIn.value });
-                rIn.value = "";
+            onValue(ref(db, `posts/${id}/likes`), s => { const el = document.getElementById(`c-${id}`); if(el) el.innerText = s.val()||0; });
+            document.getElementById(`r-b-${id}`).onclick = () => {
+                const i = document.getElementById(`r-i-${id}`); if(!i.value.trim()) return;
+                push(ref(db, `posts/${id}/replies`), { c: i.value, uid: userId }); i.value = "";
             };
-            onChildAdded(ref(db, `posts/${postId}/replies`), (rSnap) => {
-                const rDiv = document.createElement('div');
-                rDiv.className = 'reply-item';
-                rDiv.innerText = `💬 ${rSnap.val().content}`;
-                document.getElementById(`reply-list-${postId}`).appendChild(rDiv);
+            onChildAdded(ref(db, `posts/${id}/replies`), s => {
+                const rd = s.val();
+                const ra = getAvatar(rd.uid || s.key);
+                const d = document.createElement('div'); d.className='r-item'; 
+                d.innerHTML=`<span>${ra}</span><span>${rd.c}</span>`;
+                document.getElementById(`r-l-${id}`).appendChild(d);
             });
         });
     </script>
 </body>
 </html>
-

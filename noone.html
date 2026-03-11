@@ -3,138 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>匿語 - 互動森林</title>
+    <title>匿語 - 星空樹洞</title>
     <style>
-        :root { --bg: #0f0f0f; --card: #1a1a1a; --text: #e0e0e0; --sub: #777; --heart: #e07a5f; --primary: #81b29a; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px; }
-        .container { width: 100%; max-width: 500px; position: relative; }
-        .top-icons { position: absolute; width: 100%; top: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .icon-btn { font-size: 20px; cursor: pointer; color: var(--sub); position: relative; }
-        .dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #ff4d4d; border-radius: 50%; display: none; }
-        .box, .post { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 20px; position: relative; }
+        :root { --bg: #050505; --card: rgba(26, 26, 26, 0.8); --text: #e0e0e0; --sub: #777; --primary: #81b29a; --burn: #e07a5f; }
+        
+        /* 星空背景動畫 */
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px; min-height: 100vh; overflow-x: hidden; }
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); overflow: hidden; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+
+        .container { width: 100%; max-width: 500px; position: relative; z-index: 1; }
+        .box, .post { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; backdrop-filter: blur(10px); transition: 0.3s; }
+        
+        /* 閱後即焚樣式 */
+        .post.burn-mode { border: 1px dashed var(--burn); }
+        .blur-content { filter: blur(8px); user-select: none; transition: 0.5s; }
+        .burn-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; z-index: 2; }
+        .burn-btn { background: var(--burn); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; box-shadow: 0 0 10px rgba(224, 122, 95, 0.5); }
+        .disappear { animation: smoke 1s forwards; pointer-events: none; }
+        @keyframes smoke { to { opacity: 0; transform: translateY(-50px) scale(1.2); filter: blur(20px); } }
+
+        /* 其他原有 UI */
         textarea { width: 100%; height: 80px; background: transparent; border: none; color: white; outline: none; resize: none; font-size: 16px; }
-        .char-count { position: absolute; bottom: 65px; right: 25px; font-size: 11px; color: var(--sub); }
-        button#mainBtn { background: var(--primary); color: #000; border: none; border-radius: 12px; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .burn-toggle { font-size: 13px; color: var(--sub); cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        button#mainBtn { background: var(--primary); color: #000; border: none; border-radius: 12px; padding: 10px 20px; cursor: pointer; font-weight: bold; }
         .primary-text { color: var(--primary); }
-        .post-time { font-size: 11px; color: var(--sub); }
-        .btn-action { background: #252525; color: var(--sub); padding: 7px 14px; font-size: 13px; border-radius: 20px; border: none; cursor: pointer; margin-right: 10px; }
-        .btn-action.active { color: var(--heart); background: #352525; }
-        .reply-box { margin-top: 12px; background: #151515; padding: 12px; border-radius: 12px; display: none; }
-        .r-item { font-size: 13px; padding: 6px 0; border-bottom: 1px solid #222; display: flex; gap: 8px; }
-        .r-input-group { display: flex; gap: 5px; margin-top: 10px; }
-        .r-input { flex: 1; padding: 8px; background: #222; border: 1px solid #333; border-radius: 8px; color: white; font-size: 14px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; border: 1px solid #333; text-align: center; }
     </style>
 </head>
 <body>
+    <div class="stars" id="starField"></div>
+
     <div class="container">
-        <div class="top-icons">
-            <div class="icon-btn" onclick="openModal('settingsModal')">⚙️</div>
-            <div class="icon-btn" onclick="openNoti()">🔔<div id="notiDot" class="dot"></div></div>
-        </div>
         <header style="text-align: center; margin-bottom: 30px;">
-            <h1 class="primary-text" style="margin: 0; font-size: 28px; letter-spacing: 4px;">匿語</h1>
-            <p style="color: var(--sub); font-size: 13px; margin-top: 8px;">深夜的森林，聽你的秘密</p>
+            <h1 class="primary-text" style="margin: 0; font-size: 32px; letter-spacing: 5px; text-shadow: 0 0 10px var(--primary);">匿語</h1>
+            <p style="color: var(--sub); font-size: 13px; margin-top: 8px;">星光燦爛，守口如瓶</p>
         </header>
+
         <div class="box">
-            <textarea id="postIn" maxlength="200" placeholder="寫下心情..."></textarea>
-            <div id="charCount" class="char-count">0 / 200</div>
-            <button id="mainBtn">發布貼文</button>
+            <textarea id="postIn" maxlength="200" placeholder="寫下只有星星知道的秘密..."></textarea>
+            <div class="controls">
+                <label class="burn-toggle">
+                    <input type="checkbox" id="burnCheck"> 🔥 閱後即焚
+                </label>
+                <button id="mainBtn">發布</button>
+            </div>
         </div>
         <div id="feed"></div>
     </div>
 
-    <div id="settingsModal" class="modal">
-        <div class="modal-content">
-            <h3 class="primary-text">森林設定</h3>
-            <input type="text" id="nameInput" placeholder="修改暱稱" style="width:100%; padding:10px; background:#222; border:1px solid #333; color:white; border-radius:10px; margin-bottom:10px;">
-            <input type="text" id="colorInput" placeholder="主題顏色 (如: pink)" style="width:100%; padding:10px; background:#222; border:1px solid #333; color:white; border-radius:10px;">
-            <button id="mainBtn" onclick="saveSettings()">儲存設定</button>
-            <button onclick="closeModal('settingsModal')" style="background:none; color:var(--sub); border:none; width:100%; margin-top:10px; cursor:pointer">取消</button>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onChildAdded, onValue, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, set, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyD5ZKo2a3q4VUjaQQDIAeQYCH12F6Yjy_4", authDomain: "my-anonymous-treehole.firebaseapp.com", databaseURL: "https://my-anonymous-treehole-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "my-anonymous-treehole" };
+        // Firebase 配置 (請更換為你的)
+        const firebaseConfig = { apiKey: "...", authDomain: "...", databaseURL: "...", projectId: "..." };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const postRef = ref(db, 'posts');
 
-        const savedColor = localStorage.getItem('niyu_theme') || '#81b29a';
-        document.documentElement.style.setProperty('--primary', savedColor);
-        let myLikes = JSON.parse(localStorage.getItem('myLikes')) || [];
-        let userId = localStorage.getItem('niyu_uid') || Math.random().toString(36).substring(7);
-        localStorage.setItem('niyu_uid', userId);
+        // 生成星空
+        const starField = document.getElementById('starField');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.width = star.style.height = `${Math.random() * 3}px`;
+            star.style.setProperty('--duration', `${2 + Math.random() * 3}s`);
+            starField.appendChild(star);
+        }
 
-        const animals = ['🐶','🐱','🦊','🦁','🐸','🦄','🐨','🐼','🐹','🐯','🐙','🦋'];
+        const userId = localStorage.getItem('niyu_uid') || Math.random().toString(36).substring(7);
+        localStorage.setItem('niyu_uid', userId);
+        const animals = ['🐱','🦊','🐨','🦄','🐙','🐯','🦋'];
         const getAvatar = (id) => animals[Math.abs(id.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) % animals.length];
 
-        window.saveSettings = () => {
-            const name = document.getElementById('nameInput').value.trim();
-            const color = document.getElementById('colorInput').value.trim();
-            if(name) localStorage.setItem('niyu_name', name);
-            if(color) localStorage.setItem('niyu_theme', color);
-            location.reload();
-        };
+        // 記錄已經「焚毀」的貼文 ID
+        let burnedList = JSON.parse(localStorage.getItem('burned_posts')) || [];
 
         document.getElementById('mainBtn').onclick = () => {
             const val = document.getElementById('postIn').value.trim();
+            const isBurn = document.getElementById('burnCheck').checked;
             if (val) {
-                set(push(postRef), { content: val, likes: 0, ts: serverTimestamp(), uid: userId, uName: localStorage.getItem('niyu_name') || "" });
+                set(push(postRef), { 
+                    content: val, 
+                    ts: serverTimestamp(), 
+                    uid: userId, 
+                    isBurn: isBurn 
+                });
                 document.getElementById('postIn').value = "";
+                document.getElementById('burnCheck').checked = false;
             }
         };
 
         onChildAdded(postRef, (snap) => {
             const id = snap.key, data = snap.val();
-            if (data.ts && (Date.now() - data.ts > 48 * 60 * 60 * 1000)) return;
-            const isLiked = myLikes.includes(id);
-            const div = document.createElement('div'); div.className = 'post';
-            div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <div style="font-size:20px;">${getAvatar(data.uid)}</div>
-                    <div><b class="primary-text">${data.uName || '匿名'}${getAvatar(data.uid)}</b><br><span class="post-time">${new Date(data.ts).toLocaleString()}</span></div>
-                </div>
-                <div>${data.content}</div>
-                <div style="margin-top:15px;">
-                    <button class="btn-action ${isLiked?'active':''}" id="l-${id}"><span>${isLiked?'❤️ ':'🤍 '}</span><span id="c-${id}">${data.likes||0}</span></button>
-                    <button class="btn-action" onclick="const s=document.getElementById('r-box-${id}'); s.style.display=s.style.display==='block'?'none':'block'">💬 回覆</button>
-                </div>
-                <div class="reply-box" id="r-box-${id}">
-                    <div id="r-list-${id}"></div>
-                    <div class="r-input-group"><input type="text" class="r-input" id="r-in-${id}" placeholder="留言..."><button class="btn-action" id="r-btn-${id}">送出</button></div>
-                </div>`;
+            if (data.ts && (Date.now() - data.ts > 48 * 60 * 60 * 1000)) return; // 48小時消失
+            if (burnedList.includes(id)) return; // 已經焚毀的不顯示
+
+            const div = document.createElement('div');
+            div.className = `post ${data.isBurn ? 'burn-mode' : ''}`;
+            div.id = `post-${id}`;
+
+            if (data.isBurn) {
+                div.innerHTML = `
+                    <div class="burn-overlay" id="overlay-${id}">
+                        <p style="font-size:12px; color:var(--burn); margin-bottom:10px;">🔥 極致秘密 (限時觀看)</p>
+                        <button class="burn-btn" onclick="revealPost('${id}')">揭曉秘密</button>
+                    </div>
+                    <div class="blur-content" id="content-${id}">${data.content}</div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                        <span style="font-size:20px;">${getAvatar(data.uid)}</span>
+                        <b class="primary-text">匿名${getAvatar(data.uid)}</b>
+                    </div>
+                    <div>${data.content}</div>
+                `;
+            }
             document.getElementById('feed').insertBefore(div, document.getElementById('feed').firstChild);
-
-            // 修正後的按讚收回
-            document.getElementById(`l-${id}`).onclick = function() {
-                const idx = myLikes.indexOf(id);
-                runTransaction(ref(db, `posts/${id}/likes`), c => idx === -1 ? (c||0)+1 : (c||0)-1);
-                if(idx === -1) { myLikes.push(id); this.classList.add('active'); this.firstChild.innerText = '❤️ '; }
-                else { myLikes.splice(idx, 1); this.classList.remove('active'); this.firstChild.innerText = '🤍 '; }
-                localStorage.setItem('myLikes', JSON.stringify(myLikes));
-            };
-            onValue(ref(db, `posts/${id}/likes`), s => { if(document.getElementById(`c-${id}`)) document.getElementById(`c-${id}`).innerText = s.val()||0; });
-
-            // 回覆邏輯
-            document.getElementById(`r-btn-${id}`).onclick = () => {
-                const ri = document.getElementById(`r-in-${id}`); if(!ri.value.trim()) return;
-                push(ref(db, `posts/${id}/replies`), { c: ri.value, uid: userId, uName: localStorage.getItem('niyu_name') || "" });
-                ri.value = "";
-            };
-            onChildAdded(ref(db, `posts/${id}/replies`), s => {
-                const rd = s.val(), d = document.createElement('div'); d.className='r-item';
-                d.innerHTML=`<span>${getAvatar(rd.uid)}</span><b class="primary-text">${rd.uName||'匿名'}:</b><span>${rd.c}</span>`;
-                document.getElementById(`r-list-${id}`).appendChild(d);
-            });
         });
 
-        window.openModal = (m) => document.getElementById(m).style.display = 'flex';
-        window.closeModal = (m) => document.getElementById(m).style.display = 'none';
+        // 揭曉秘密邏輯
+        window.revealPost = (id) => {
+            const content = document.getElementById(`content-${id}`);
+            const overlay = document.getElementById(`overlay-${id}`);
+            const post = document.getElementById(`post-${id}`);
+
+            content.style.filter = "none";
+            overlay.style.display = "none";
+
+            // 10秒後焚毀
+            setTimeout(() => {
+                post.classList.add('disappear');
+                setTimeout(() => {
+                    post.remove();
+                    burnedList.push(id);
+                    localStorage.setItem('burned_posts', JSON.stringify(burnedList));
+                }, 1000);
+            }, 10000);
+        };
     </script>
 </body>
 </html>
